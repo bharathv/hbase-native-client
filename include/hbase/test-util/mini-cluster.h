@@ -25,6 +25,9 @@
 
 namespace hbase {
 
+/**
+ * JNI wrapper for the Java based mini cluster implementation.
+ */
 class MiniCluster {
  public:
   virtual ~MiniCluster();
