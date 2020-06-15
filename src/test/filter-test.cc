@@ -17,7 +17,6 @@
  *
  */
 
-#include <gtest/gtest.h>
 #include "hbase/client/client.h"
 #include "hbase/client/configuration.h"
 #include "hbase/client/get.h"
@@ -28,6 +27,7 @@
 #include "HBase.pb.h"
 #include "hbase/serde/table-name.h"
 #include "hbase/test-util/mini-cluster-util.h"
+#include "hbase/test-util/test-util.h"
 
 using hbase::Configuration;
 using hbase::Get;
@@ -139,3 +139,5 @@ TEST_F(FilterTest, GetWithQualifierFilter) {
   EXPECT_EQ("value2", *(result->Value("d", "b")));
   EXPECT_EQ("value3", *(result->Value("d", "c")));
 }
+
+HBASE_TEST_MAIN()

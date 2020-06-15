@@ -19,7 +19,6 @@
 #include "hbase/client/location-cache.h"
 
 #include <folly/Memory.h>
-#include <gtest/gtest.h>
 
 #include <chrono>
 
@@ -27,6 +26,7 @@
 #include "hbase/if/HBase.pb.h"
 #include "hbase/serde/table-name.h"
 #include "hbase/test-util/mini-cluster-util.h"
+#include "hbase/test-util/test-util.h"
 
 using hbase::Cell;
 using hbase::Configuration;
@@ -162,3 +162,5 @@ TEST_F(LocationCacheTest, TestCaching) {
   cpu->stop();
   io->stop();
 }
+
+HBASE_TEST_MAIN()

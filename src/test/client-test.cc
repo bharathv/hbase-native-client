@@ -17,8 +17,6 @@
  *
  */
 
-#include <gtest/gtest.h>
-
 #include <fstream>
 #include "hbase/client/append.h"
 #include "hbase/client/cell.h"
@@ -34,6 +32,7 @@
 #include "hbase/exceptions/exception.h"
 #include "hbase/serde/table-name.h"
 #include "hbase/test-util/mini-cluster-util.h"
+#include "hbase/test-util/test-util.h"
 #include "hbase/utils/bytes-util.h"
 #include "hbase/utils/optional.h"
 
@@ -701,3 +700,5 @@ TEST_F(ClientTest, MultiPutsWithRegionSplits) {
   table->Close();
   client.Close();
 }
+
+HBASE_TEST_MAIN()

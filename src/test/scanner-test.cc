@@ -18,7 +18,6 @@
  */
 
 #include <folly/Conv.h>
-#include <gtest/gtest.h>
 
 #include <chrono>
 #include <thread>
@@ -40,6 +39,7 @@
 #include "client/Filter.pb.h"
 #include "hbase/serde/table-name.h"
 #include "hbase/test-util/mini-cluster-util.h"
+#include "hbase/test-util/test-util.h"
 #include "hbase/utils/time-util.h"
 
 using hbase::Cell;
@@ -366,3 +366,5 @@ TEST_F(ScannerTest, ScanNoResults) {
 
   TestScan(scan, 0, 0, table.get());
 }
+
+HBASE_TEST_MAIN()
