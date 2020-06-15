@@ -16,34 +16,20 @@
  * limitations under the License.
  *
  */
+#pragma once
 
-#include <string>
+#include <gflags/gflags.h>
+#include <glog/logging.h>
+#include <gtest/gtest.h>
 
-#include "hbase/serde/server-name.h"
-#include "hbase/test-util/test-util.h"
-
-using hbase::pb::ServerName;
-
-TEST(TestServerName, TestMakeServerName) {
-  auto sn = folly::to<ServerName>("test:123");
-
-  ASSERT_EQ("test", sn.host_name());
-  ASSERT_EQ(123, sn.port());
-}
-
-TEST(TestServerName, TestIps) {
-  auto sn = folly::to<ServerName>("127.0.0.1:999");
-  ASSERT_EQ("127.0.0.1", sn.host_name());
-  ASSERT_EQ(999, sn.port());
-}
-
-TEST(TestServerName, TestThrow) { ASSERT_ANY_THROW(folly::to<ServerName>("Ther's no colon here")); }
-
-TEST(TestServerName, TestIPV6) {
-  auto sn = folly::to<ServerName>("[::::1]:123");
-
-  ASSERT_EQ("[::::1]", sn.host_name());
-  ASSERT_EQ(123, sn.port());
-}
-
-HBASE_TEST_MAIN()
+namespace hbase {
+// main() function intended to be used in tests. This initializes the needed gflags/glog libraries as needed.
+#define HBASE_TEST_MAIN() \
+  int main(int argc, char** argv) { \
+    ::testing::InitGoogleTest(&argc, argv); \
+    gflags::ParseCommandLineFlags(&argc, &argv, true);\
+    google::InstallFailureSignalHandler();\
+    google::InitGoogleLogging(argv[0]);\
+    return RUN_ALL_TESTS(); \
+  }
+} // namespace hbase

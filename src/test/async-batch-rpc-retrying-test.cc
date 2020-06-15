@@ -22,7 +22,6 @@
 #include <folly/futures/Future.h>
 #include <folly/io/async/EventBase.h>
 #include <folly/io/async/ScopedEventBaseThread.h>
-#include <gtest/gtest.h>
 #include <wangle/concurrent/IOThreadPoolExecutor.h>
 
 #include <chrono>
@@ -40,6 +39,7 @@
 #include "hbase/client/result.h"
 #include "hbase/exceptions/exception.h"
 #include "hbase/test-util/mini-cluster-util.h"
+#include "hbase/test-util/test-util.h"
 #include "hbase/utils/time-util.h"
 
 using hbase::AsyncRpcRetryingCallerFactory;
@@ -71,7 +71,6 @@ class AsyncBatchRpcRetryTest : public ::testing::Test {
   static std::string tableName;
 
   static void SetUpTestCase() {
-    google::InstallFailureSignalHandler();
     test_util = std::make_unique<hbase::MiniClusterUtility>();
     test_util->StartMiniCluster(2);
     std::vector<std::string> keys{"test0",   "test100", "test200", "test300", "test400",
@@ -575,3 +574,5 @@ TEST_F(AsyncBatchRpcRetryTest, PutsFailWithOperationTimeout) {
  std::make_shared<MockFailingAsyncRegionLocator>(6));
  EXPECT_ANY_THROW(runMultiGets(region_locator, "table12", true, 5, 100, 1000));
  }
+
+ HBASE_TEST_MAIN()
