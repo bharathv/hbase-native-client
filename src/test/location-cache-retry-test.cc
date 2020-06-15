@@ -33,7 +33,7 @@
 #include "hbase/client/table.h"
 #include "hbase/exceptions/exception.h"
 #include "hbase/serde/table-name.h"
-#include "hbase/test-util/test-util.h"
+#include "hbase/test-util/mini-cluster-util.h"
 #include "hbase/utils/bytes-util.h"
 
 using hbase::Cell;
@@ -43,22 +43,22 @@ using hbase::MetaUtil;
 using hbase::RetriesExhaustedException;
 using hbase::Put;
 using hbase::Table;
-using hbase::TestUtil;
+using hbase::MiniClusterUtility;
 
 using std::chrono_literals::operator"" s;
 
 class LocationCacheRetryTest : public ::testing::Test {
  public:
-  static std::unique_ptr<hbase::TestUtil> test_util;
+  static std::unique_ptr<hbase::MiniClusterUtility> test_util;
   static void SetUpTestCase() {
     google::InstallFailureSignalHandler();
-    test_util = std::make_unique<hbase::TestUtil>();
+    test_util = std::make_unique<hbase::MiniClusterUtility>();
     test_util->StartMiniCluster(2);
     test_util->conf()->SetInt("hbase.client.retries.number", 5);
   }
 };
 
-std::unique_ptr<hbase::TestUtil> LocationCacheRetryTest::test_util = nullptr;
+std::unique_ptr<hbase::MiniClusterUtility> LocationCacheRetryTest::test_util = nullptr;
 
 TEST_F(LocationCacheRetryTest, GetFromMetaTable) {
   auto tn = folly::to<hbase::pb::TableName>("hbase:meta");

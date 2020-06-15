@@ -32,14 +32,14 @@ namespace hbase {
 /**
  * @brief Class to deal with a local instance cluster for testing.
  */
-class TestUtil {
+class MiniClusterUtility {
  public:
-  TestUtil();
+  MiniClusterUtility();
 
   /**
    * Destroying a TestUtil will spin down a cluster and remove the test dir.
    */
-  ~TestUtil();
+  ~MiniClusterUtility();
 
   /**
    * Create a random string. This random string is all letters, as such it is

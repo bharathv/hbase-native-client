@@ -26,14 +26,14 @@
 #include "hbase/client/keyvalue-codec.h"
 #include "hbase/if/HBase.pb.h"
 #include "hbase/serde/table-name.h"
-#include "hbase/test-util/test-util.h"
+#include "hbase/test-util/mini-cluster-util.h"
 
 using hbase::Cell;
 using hbase::Configuration;
 using hbase::ConnectionPool;
 using hbase::MetaUtil;
 using hbase::LocationCache;
-using hbase::TestUtil;
+using hbase::MiniClusterUtility;
 using hbase::KeyValueCodec;
 using std::chrono::milliseconds;
 
@@ -41,7 +41,7 @@ class LocationCacheTest : public ::testing::Test {
  protected:
   static void SetUpTestCase() {
     google::InstallFailureSignalHandler();
-    test_util_ = std::make_unique<TestUtil>();
+    test_util_ = std::make_unique<MiniClusterUtility>();
     test_util_->StartMiniCluster(2);
   }
   static void TearDownTestCase() { test_util_.release(); }
@@ -50,10 +50,10 @@ class LocationCacheTest : public ::testing::Test {
   virtual void TearDown() {}
 
  public:
-  static std::unique_ptr<TestUtil> test_util_;
+  static std::unique_ptr<MiniClusterUtility> test_util_;
 };
 
-std::unique_ptr<TestUtil> LocationCacheTest::test_util_ = nullptr;
+std::unique_ptr<MiniClusterUtility> LocationCacheTest::test_util_ = nullptr;
 
 TEST_F(LocationCacheTest, TestGetMetaNodeContents) {
   auto cpu = std::make_shared<wangle::CPUThreadPoolExecutor>(4);
