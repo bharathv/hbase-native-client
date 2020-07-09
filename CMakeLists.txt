@@ -336,6 +336,7 @@ install(
     DIRECTORY ${CMAKE_SOURCE_DIR}/include/
     DESTINATION include/
     FILES_MATCHING PATTERN "*.h*")
+
 # Install pb-generated headers too
 install(
     DIRECTORY "${CMAKE_BINARY_DIR_GEN}"
