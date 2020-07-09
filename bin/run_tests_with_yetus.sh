@@ -23,40 +23,69 @@ if [[ "true" = "${DEBUG}" ]]; then
   printenv
 fi
 
-SCRIPT_DIR=$(dirname $(realpath $0))
-SRC_ROOT="$SCRIPT_DIR/.."
-DEPS_DIR="$SRC_ROOT/dependencies"
+declare -i missing_env=0
+declare -a required_envs=(
+  # these ENV variables define the required API with Jenkinsfile_GitHub
+  "ARCHIVE_PATTERN_LIST"
+  "BUILD_URL_ARTIFACTS"
+  "DOCKERFILE"
+  "GITHUB_PASSWORD"
+  "GITHUB_USER"
+  "PATCHDIR"
+  "SOURCEDIR"
+  "YETUSDIR"
+)
+# Validate params
+for required_env in "${required_envs[@]}"; do
+  if [ -z "${!required_env}" ]; then
+    echo "[ERROR] Required environment variable '${required_env}' is not set."
+    missing_env=${missing_env}+1
+  fi
+done
 
-# Create directory if it doesn't exist.
-if [ ! -d $DEPS_DIR ]; then
-  mkdir -p $DEPS_DIR
+if [ ${missing_env} -gt 0 ]; then
+  echo "[ERROR] Please set the required environment variables before invoking. If this error is " \
+       "on Jenkins, then please file a JIRA about the error."
+  exit 1
 fi
-YETUS_RELEASE=0.12.0
-# Download Yetus if it isn't already there.
-YETUS_HOME="$DEPS_DIR/apache-yetus-${YETUS_RELEASE}"
-TESTPATCHBIN=$YETUS_HOME/bin/test-patch
-TESTPATCHLIB=$YETUS_HOME/lib/precommit
 
-pushd $DEPS_DIR > /dev/null
-if [ ! -f $TESTPATCHBIN ]; then
-  echo "Downloading Yetus...."
-  curl -L --fail -O \
-      "https://dist.apache.org/repos/dist/release/yetus/${YETUS_RELEASE}/apache-yetus-${YETUS_RELEASE}-bin.tar.gz"
-  tar xzpf "apache-yetus-${YETUS_RELEASE}-bin.tar.gz"
-fi
-popd > /dev/null
+# this must be clean for every run
+rm -rf "${PATCHDIR}"
+mkdir -p "${PATCHDIR}"
+
+# Gather machine information
+mkdir "${PATCHDIR}/machine"
+"${SOURCEDIR}/bin/jenkins/gather_machine_environment.sh" "${PATCHDIR}/machine"
+
+YETUS_ARGS+=("--archive-list=${ARCHIVE_PATTERN_LIST}")
+YETUS_ARGS+=("--ignore-unknown-options=true")
+YETUS_ARGS+=("--patch-dir=${PATCHDIR}")
+# where the source is located
+YETUS_ARGS+=("--basedir=${SOURCEDIR}")
+# lots of different output formats
+YETUS_ARGS+=("--console-report-file=${PATCHDIR}/console.txt")
+YETUS_ARGS+=("--html-report-file=${PATCHDIR}/report.html")
+# enable writing back to Github
+YETUS_ARGS+=("--github-password=${GITHUB_PASSWORD}")
+YETUS_ARGS+=("--github-user=${GITHUB_USER}")
+# rsync these files back into the archive dir
+YETUS_ARGS+=("--archive-list=${ARCHIVE_PATTERN_LIST}")
+# URL for user-side presentation in reports and such to our artifacts
+YETUS_ARGS+=("--build-url-artifacts=${BUILD_URL_ARTIFACTS}")
+# run in docker mode and specifically point to our
+YETUS_ARGS+=("--docker")
+YETUS_ARGS+=("--dockerfile=${DOCKERFILE}")
+
+# TODO (HBASE-23900): cannot assume test-patch runs directly from sources
+TESTPATCHBIN="${YETUSDIR}/precommit/src/main/shell/test-patch.sh"
 
 if [[ "true" = "${DEBUG}" ]]; then
-  # DEBUG print the test framework
-  ls -l "${TESTPATCHBIN}"
-  ls -la "${TESTPATCHLIB}/test-patch.d/"
   YETUS_ARGS=(--debug "${YETUS_ARGS[@]}")
 fi
 
 # Sanity checks for downloaded Yetus binaries.
 if [ ! -x "${TESTPATCHBIN}" ]; then
   echo "Something is amiss with Yetus download."
-  rm -rf "${YETUS_HOME}"
   exit 1
 fi
 
@@ -65,7 +94,7 @@ fi
 if [[ "true" = "${RUN_IN_DOCKER}" ]]; then
   YETUS_ARGS=(
     --docker \
-    "--dockerfile=${SRC_ROOT}/docker-files/Dockerfile" \
+    "--dockerfile=${SOURCEDIR}/docker-files/Dockerfile" \
     "${YETUS_ARGS[@]}"
   )
 fi
@@ -74,6 +103,6 @@ echo "Using YETUS_ARGS: ${YETUS_ARGS[*]}"
 
 # shellcheck disable=SC2068
 /bin/bash "${TESTPATCHBIN}" \
-    --personality="${SRC_ROOT}/bin/hbase-native-client-personality.sh" \
+    --personality="${SOURCE_DIR}/bin/hbase-native-client-personality.sh" \
     --run-tests \
     ${YETUS_ARGS[@]}
