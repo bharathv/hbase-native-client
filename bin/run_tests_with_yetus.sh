@@ -105,4 +105,4 @@ echo "Using YETUS_ARGS: ${YETUS_ARGS[*]}"
 /bin/bash "${TESTPATCHBIN}" \
     --personality="${SOURCEDIR}/bin/hbase-native-client-personality.sh" \
     --run-tests \
-    ${YETUS_ARGS[@]}
+    ${YETUS_ARGS[@]} /tmp/patch.diff
