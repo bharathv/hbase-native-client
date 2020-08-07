@@ -22,6 +22,7 @@
 #################### ZOOKEEPER
 
 function(download_zookeeper SOURCE_DIR BUILD_DIR)
+  set(ZK_LIB_PATH "${BUILD_DIR}/dependencies/zookeeper-install/lib/libzookeeper_mt.a")
   ExternalProject_Add(
       ZooKeeper
       URL "https://archive.apache.org/dist/zookeeper/zookeeper-3.4.8/zookeeper-3.4.8.tar.gz"
@@ -30,10 +31,11 @@ function(download_zookeeper SOURCE_DIR BUILD_DIR)
       BINARY_DIR ${BUILD_DIR}/dependencies/zookeeper-src/src/c/
       CONFIGURE_COMMAND ./configure --without-cppunit --prefix=${BUILD_DIR}/dependencies/zookeeper-install
       PATCH_COMMAND patch ${BUILD_DIR}/dependencies/zookeeper-src/src/c/src/zookeeper.c ${CMAKE_CURRENT_SOURCE_DIR}/cmake/patches/zookeeper.3.4.x.buf
+      BUILD_BYPRODUCTS ${ZK_LIB_PATH}
       UPDATE_COMMAND ""
   )
   add_library(zookeeper STATIC IMPORTED)
-  set_target_properties(zookeeper PROPERTIES IMPORTED_LOCATION "${BUILD_DIR}/dependencies/zookeeper-install/lib/libzookeeper_mt.a")
+  set_target_properties(zookeeper PROPERTIES IMPORTED_LOCATION ${ZK_LIB_PATH})
   add_dependencies(zookeeper ZooKeeper)
   set(ZOOKEEPER_DIR "${BUILD_DIR}/dependencies/zookeeper-install/" CACHE STRING "" FORCE)
 endfunction(download_zookeeper)

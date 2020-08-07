@@ -34,6 +34,7 @@ function(download_folly SOURCE_DIR BUILD_DIR)
     set(CONFIGURE_CMD ./configure --prefix=${BUILD_DIR}/dependencies/facebook-folly-proj-install CFLAGS=${CFLAGS} CXXFLAGS=${CXXFLAGS})
   endif()
 
+  set(FOLLY_ROOT_DIR "${BUILD_DIR}/dependencies/facebook-folly-proj-install" CACHE STRING "" FORCE)
   ExternalProject_Add(
       facebook-folly-proj
       # TODO: Source version information from cmake file.
@@ -42,7 +43,7 @@ function(download_folly SOURCE_DIR BUILD_DIR)
       SOURCE_DIR "${BUILD_DIR}/dependencies/facebook-folly-proj-src"
       BINARY_DIR ${BUILD_DIR}/dependencies/facebook-folly-proj-src/folly
       CONFIGURE_COMMAND autoreconf -ivf COMMAND ${CONFIGURE_CMD}
+      BUILD_BYPRODUCTS "${FOLLY_ROOT_DIR}/lib/${BYPRODUCT_PREFIX}folly${BYPRODUCT_SHARED_SUFFIX}"
       UPDATE_COMMAND ""
   )
-  set(FOLLY_ROOT_DIR "${BUILD_DIR}/dependencies/facebook-folly-proj-install" CACHE STRING "" FORCE)
 endfunction(download_folly) 

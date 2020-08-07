@@ -30,8 +30,10 @@ function(download_boost SOURCE_DIR BUILD_DIR BOOST_LIBS)
 
   # Only compile and install the needed libs.
   set(LIBS_TO_COMPILE "")
+  set(BUILD_BYPRODUCTS "")
   foreach(lib ${BOOST_LIBS})
     string(APPEND LIBS_TO_COMPILE --with-${lib} " ")
+    list(APPEND BUILD_BYPRODUCTS "${BOOST_INSTALL_DIR}/lib/${BYPRODUCT_PREFIX}boost_${lib}${BYPRODUCT_SUFFIX}")
   endforeach()
 
   separate_arguments(BUILD_CMD UNIX_COMMAND
@@ -42,6 +44,7 @@ function(download_boost SOURCE_DIR BUILD_DIR BOOST_LIBS)
      PREFIX "${BUILD_DIR}/dependencies"
      DOWNLOAD_DIR ${BOOST_DOWNLOAD_DIR}
      BUILD_IN_SOURCE true
+     BUILD_BYPRODUCTS ${BUILD_BYPRODUCTS}
      SOURCE_DIR ${BOOST_SOURCE_DIR}
      INSTALL_DIR ${BOOST_INSTALL_DIR}
      CONFIGURE_COMMAND ./bootstrap.sh --prefix=${BOOST_INSTALL_DIR}
